@@ -39,7 +39,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
               rows={1}
               style={{
                 height: 'auto',
-                minHeight: window?.innerWidth < 768 ? '44px' : '50px',
+                minHeight: '44px',
                 maxHeight: '128px'
               }}
               onInput={(e) => {
