@@ -6,12 +6,14 @@ import { ChatMessages } from './ChatMessages';
 import { ChatInput } from './ChatInput';
 import { Sidebar } from './Sidebar';
 import { chatStorage } from '@/utils/chatStorage';
+import { Menu, X } from 'lucide-react';
 
 export function ChatContainer() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [personality, setPersonality] = useState<PersonalityType>('default');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // LocalStorage'dan sohbetleri yükle
   useEffect(() => {
@@ -129,6 +131,8 @@ export function ChatContainer() {
     const newSession = chatStorage.createSession(personality);
     setSessions(prev => [newSession, ...prev]);
     setCurrentSessionId(newSession.id);
+    // Mobilde yeni sohbet oluşturulduğunda sidebar'ı kapat
+    setIsSidebarOpen(false);
   };
 
   const handleSelectSession = (sessionId: string) => {
@@ -137,6 +141,8 @@ export function ChatContainer() {
     if (session) {
       setPersonality(session.personality);
     }
+    // Mobilde seçim yapıldığında sidebar'ı kapat
+    setIsSidebarOpen(false);
   };
 
   const handleDeleteSession = (sessionId: string) => {
@@ -170,20 +176,51 @@ export function ChatContainer() {
   };
 
   return (
-    <div className="flex h-screen bg-white">
+    <div className="flex h-screen bg-white relative">
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setIsSidebarOpen(true)}
+        className="md:hidden fixed top-4 left-4 z-20 p-2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-lg shadow-lg hover:from-emerald-600 hover:to-cyan-600 transition-all duration-200"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/50 z-30"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <Sidebar
-        onNewChat={handleNewChat}
-        onSelectSession={handleSelectSession}
-        onDeleteSession={handleDeleteSession}
-        personality={personality}
-        onPersonalityChange={handlePersonalityChange}
-        sessions={sessions}
-        currentSessionId={currentSessionId}
-      />
+      <div className={`
+        fixed md:relative inset-y-0 left-0 z-40 w-64 
+        transform transition-transform duration-300 ease-in-out
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
+        <Sidebar
+          onNewChat={handleNewChat}
+          onSelectSession={handleSelectSession}
+          onDeleteSession={handleDeleteSession}
+          personality={personality}
+          onPersonalityChange={handlePersonalityChange}
+          sessions={sessions}
+          currentSessionId={currentSessionId}
+          onClose={() => setIsSidebarOpen(false)}
+          isMobile={true}
+        />
+      </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col md:ml-0">
+        {/* Mobile Header */}
+        <div className="md:hidden bg-white border-b border-gray-200 px-16 py-4">
+          <h1 className="text-lg font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent text-center">
+            EgeBot
+          </h1>
+        </div>
+
         {/* Chat Messages */}
         <ChatMessages messages={messages} isLoading={isLoading} />
 

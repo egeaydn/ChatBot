@@ -1,6 +1,6 @@
 'use client';
 
-import { MessageSquare, Plus, Settings, Trash2, Bot, Palette, User, Heart, Briefcase, Smile, MoreHorizontal } from 'lucide-react';
+import { MessageSquare, Plus, Settings, Trash2, Bot, Palette, User, Heart, Briefcase, Smile, MoreHorizontal, X } from 'lucide-react';
 import { PersonalityType, ChatSession } from '@/types/chat';
 import { useState } from 'react';
 
@@ -12,6 +12,8 @@ interface SidebarProps {
   onPersonalityChange: (personality: PersonalityType) => void;
   sessions: ChatSession[];
   currentSessionId: string | null;
+  onClose?: () => void;
+  isMobile?: boolean;
 }
 
 const personalities = [
@@ -22,7 +24,7 @@ const personalities = [
   { id: 'humorous' as PersonalityType, name: 'Esprili', icon: Smile, color: 'from-yellow-500 to-orange-500' },
 ];
 
-export function Sidebar({ onNewChat, onSelectSession, onDeleteSession, personality, onPersonalityChange, sessions, currentSessionId }: SidebarProps) {
+export function Sidebar({ onNewChat, onSelectSession, onDeleteSession, personality, onPersonalityChange, sessions, currentSessionId, onClose, isMobile }: SidebarProps) {
   const [hoveredSession, setHoveredSession] = useState<string | null>(null);
   return (
     <div className="w-64 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white flex flex-col h-screen">
@@ -32,9 +34,18 @@ export function Sidebar({ onNewChat, onSelectSession, onDeleteSession, personali
           <div className="w-8 h-8 bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-lg flex items-center justify-center">
             <MessageSquare className="w-4 h-4 text-white" />
           </div>
-          <h1 className="text-lg font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+          <h1 className="text-lg font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent flex-1">
             EgeBot
           </h1>
+          {/* Mobile Close Button */}
+          {isMobile && onClose && (
+            <button
+              onClick={onClose}
+              className="md:hidden p-1 hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
         
         <button
