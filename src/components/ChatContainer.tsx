@@ -119,6 +119,13 @@ export function ChatContainer() {
   }, [personality, currentSessionId]);
 
   const handleNewChat = () => {
+    // Mevcut sohbeti kaydet (eğer mesaj varsa)
+    if (currentSession && currentSession.messages.length > 0) {
+      // Mevcut sohbet zaten otomatik olarak kaydediliyor
+      console.log('Mevcut sohbet kaydedildi:', currentSession.title);
+    }
+    
+    // Yeni sohbet oluştur
     const newSession = chatStorage.createSession(personality);
     setSessions(prev => [newSession, ...prev]);
     setCurrentSessionId(newSession.id);
