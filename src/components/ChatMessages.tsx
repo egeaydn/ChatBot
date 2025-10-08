@@ -6,9 +6,10 @@ import { Bot, Sparkles } from 'lucide-react';
 interface ChatMessagesProps {
   messages: Message[];
   isLoading: boolean;
+  isTyping?: boolean;
 }
 
-export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
+export function ChatMessages({ messages, isLoading, isTyping }: ChatMessagesProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -67,6 +68,24 @@ export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
         {messages.map((message) => (
           <MessageBubble key={message.id} message={message} />
         ))}
+        
+        {isTyping && !isLoading && (
+          <div className="flex items-end gap-2 md:gap-3 mb-4 md:mb-6">
+            <div className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
+              <div className="w-3 h-3 bg-white rounded-full"></div>
+            </div>
+            <div className="bg-gradient-to-r from-gray-100 to-gray-200 border border-gray-300 rounded-2xl px-3 md:px-4 py-2.5 md:py-3 shadow-lg">
+              <div className="flex items-center gap-1 text-gray-600 text-sm">
+                <span>Yazıyor</span>
+                <div className="flex gap-0.5">
+                  <div className="w-1 h-1 bg-gray-600 rounded-full animate-bounce"></div>
+                  <div className="w-1 h-1 bg-gray-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-1 h-1 bg-gray-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         
         {isLoading && (
           <div className="flex items-end gap-2 md:gap-3 mb-4 md:mb-6">

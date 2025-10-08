@@ -1,13 +1,27 @@
 import { Send, Loader2, Paperclip, Mic } from 'lucide-react';
-import { useState, KeyboardEvent } from 'react';
+import { useState, KeyboardEvent, useEffect } from 'react';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
   isLoading: boolean;
+  onTyping?: (typing: boolean) => void;
 }
 
-export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
+export function ChatInput({ onSendMessage, isLoading, onTyping }: ChatInputProps) {
   const [message, setMessage] = useState('');
+  const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (message && onTyping) {
+      onTyping(true);
+      if (typingTimeout) clearTimeout(typingTimeout);
+      const timeout = setTimeout(() => onTyping(false), 1000);
+      setTypingTimeout(timeout);
+    }
+    return () => {
+      if (typingTimeout) clearTimeout(typingTimeout);
+    };
+  }, [message]);
 
   const handleSend = () => {
     if (message.trim() && !isLoading) {

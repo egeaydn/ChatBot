@@ -14,6 +14,7 @@ export function ChatContainer() {
   const [isLoading, setIsLoading] = useState(false);
   const [personality, setPersonality] = useState<PersonalityType>('default');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
   // LocalStorage'dan sohbetleri yükle
   useEffect(() => {
@@ -97,6 +98,12 @@ export function ChatContainer() {
 
       // Storage'a kaydet
       chatStorage.addMessage(sessionId, botMessage);
+      
+      // Ses bildirimi
+      try {
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYHGGS56+mgUBELTKXh8bllHAU7k9n0yHkpBCt5yO/glEILElyx6OyrWRQLR5/f8rtmIAUqfsz0146CEw==');
+        audio.play().catch(() => {});
+      } catch (e) {}
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage: Message = {
@@ -222,10 +229,14 @@ export function ChatContainer() {
         </div>
 
         {/* Chat Messages */}
-        <ChatMessages messages={messages} isLoading={isLoading} />
+        <ChatMessages messages={messages} isLoading={isLoading} isTyping={isTyping} />
 
         {/* Chat Input */}
-        <ChatInput onSendMessage={sendMessage} isLoading={isLoading} />
+        <ChatInput 
+          onSendMessage={sendMessage} 
+          isLoading={isLoading}
+          onTyping={setIsTyping}
+        />
       </div>
     </div>
   );
