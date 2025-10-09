@@ -8,6 +8,7 @@ import { Sidebar } from './Sidebar';
 import { chatStorage } from '@/utils/chatStorage';
 import { Menu, X } from 'lucide-react';
 
+
 export function ChatContainer() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
@@ -16,12 +17,36 @@ export function ChatContainer() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
-  // LocalStorage'dan sohbetleri yükle
+const runManualGeminiTest = useCallback(() => {
+  const apiKey = process.env.NEXT_PUBLIC_GL_API_KEY;
+  const projectId = process.env.NEXT_PUBLIC_GL_PROJECT_ID;
+  const location = process.env.NEXT_PUBLIC_GL_LOCATION;
+  const modelId = process.env.NEXT_PUBLIC_GL_MODEL_ID;
+
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/projects/${projectId}/locations/${location}/publishers/google/models/${modelId}:generateContent`;
+
+  fetch(endpoint, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      instances: [{ content: "Merhaba, nasılsın?" }],
+      parameters: { temperature: 0.7, maxOutputTokens: 150 },
+    }),
+  })
+    .then((res) => {
+      if (!res.ok) return res.text().then(text => { throw new Error(text) });
+      return res.json();
+    })
+    .then(console.log)
+    .catch(console.error);
+}, []);
   useEffect(() => {
     const loadedSessions = chatStorage.getSessions();
     setSessions(loadedSessions);
     
-    // Eğer sohbet varsa son sohbeti seç
     if (loadedSessions.length > 0) {
       setCurrentSessionId(loadedSessions[0].id);
       setPersonality(loadedSessions[0].personality);
@@ -61,18 +86,13 @@ export function ChatContainer() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-  "https://api-inference.huggingface.co/models/EleutherAI/gpt-j-6b",
-  {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.HF_API_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ inputs: "Selam, nasılsın?" }),
-  }
-);
-
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: text, personality }),
+      });
 
       if (!response.ok) {
         throw new Error('API request failed');
@@ -182,7 +202,7 @@ export function ChatContainer() {
           : session
       ));
     }
-  };
+  };console.log('hasKey', !!process.env.NEXT_PUBLIC_GL_API_KEY, 'hasProject', !!process.env.NEXT_PUBLIC_GL_PROJECT_ID);
 
   return (
     <div className="flex h-screen bg-white relative">
@@ -224,10 +244,16 @@ export function ChatContainer() {
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col md:ml-0">
         {/* Mobile Header */}
-        <div className="md:hidden bg-white border-b border-gray-200 px-16 py-4">
-          <h1 className="text-lg font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent text-center">
+        <div className="md:hidden bg-white border-b border-gray-200 px-4 py-4 flex items-center justify-between">
+          <h1 className="text-lg font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
             EgeBot
           </h1>
+          
+        </div>
+
+        {/* Üst araç çubuğu - Desktop */}
+        <div className="hidden md:flex items-center justify-end gap-2 px-4 py-2 border-b border-gray-200">
+       
         </div>
 
         {/* Chat Messages */}
