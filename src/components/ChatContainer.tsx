@@ -61,16 +61,18 @@ export function ChatContainer() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: text,
-          personality,
-        }),
-      });
+      const response = await fetch(
+  "https://api-inference.huggingface.co/models/EleutherAI/gpt-j-6b",
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.HF_API_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ inputs: "Selam, nasılsın?" }),
+  }
+);
+
 
       if (!response.ok) {
         throw new Error('API request failed');
